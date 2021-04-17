@@ -48,6 +48,9 @@ tot.counts
     summarize(Lake, Season, visits = `length(Lake)`) %>% 
     spread(Lake, visits))
 
+
+
+
 #calculate when cameras were running- dates are a formatting mess! Fix first
 
 camera1 <- read_excel("16feb2021-database_uploads_template_v8.2_camera7B-copy.xlsx", 
@@ -89,6 +92,32 @@ camera <- rbind(fixt1, fixt2) %>%
   arrange(date) %>% 
   group_by(Camera_Name) %>% 
   summarize(start = first(na.omit(date)), end = last(na.omit(date))))
+
+
+str(camera)
+
+one.isl2020 <- camera %>% 
+  filter(Camera_Name %in% "ONE ISLAND")
+
+
+str(instant.df)
+
+one.isl_inst <- instant.df %>% 
+  filter(Lake %in% "One Island") %>% 
+  mutate(dayofweek = wday(Date), weekend = ifelse(dayofweek %in% c(1,7),T,F))%>% 
+  dplyr::group_by(Date, weekend) %>% 
+  summarize(daily.total = sum(Total_Boats, na.rm=T), )
+
+#need to fix - account for boats/day
+ggplot(one.isl_inst)+
+  geom_histogram(aes(x=Date, fill=weekend), position = "dodge", bins  = 2)
+
+
+
+x <- seq(Sys.Date()-10, Sys.Date(), by = 1)
+x[lubridate::wday(x) %in% c(1, 7)]
+
+
 
 
 
